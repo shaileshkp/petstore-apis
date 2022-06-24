@@ -1,0 +1,51 @@
+CREATE DATABASE petstore;
+
+CREATE TABLE categories
+(
+    id SERIAL PRIMARY KEY,
+    name VARCHAR (50) UNIQUE NOT NULL
+);
+
+CREATE TABLE tags
+(
+    id SERIAL PRIMARY KEY,
+    name VARCHAR (50) UNIQUE NOT NULL
+);
+
+create TABLE pets 
+(
+    id serial NOT NULL,
+    category integer NOT NULL REFERENCES categories (id),
+    name text NOT NULL,
+    "photoUrls" text[],
+    tags integer[] NOT NULL,
+    FOREIGN KEY (EACH ELEMENT OF tags) REFERENCES tags,
+    status text NOT NULL,
+    "createdAt" timestamp without time zone,
+    "updatedAt" timestamp without time zone NOT NULL,
+    PRIMARY KEY (id),
+);
+
+create TABLE pets 
+(
+    id serial PRIMARY KEY,
+    category integer NOT NULL REFERENCES categories (id),
+    name text NOT NULL,
+    "photoUrls" text[],
+    tags integer[] NOT NULL,
+    status text NOT NULL,
+    "createdAt" timestamp without time zone NOT NULL,
+    "updatedAt" timestamp without time zone NOT NULL
+);
+
+SELECT 
+    p.id, 
+    p.name, 
+    p."photoUrls", 
+    p.status, 
+    array_agg(json_build_object('id', t.id, 'name', t.name)) tags, 
+    json_build_object('id', c.id, 'name', c.name) AS category 
+    FROM pets p JOIN tags t ON t.id = ANY (p.tags) 
+    left join categories as c on p.category = c.id 
+    WHERE status IN ('available', 'pending')
+    GROUP BY p.id, p.name, c.name, c.id;
