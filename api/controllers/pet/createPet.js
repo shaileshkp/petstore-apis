@@ -1,17 +1,27 @@
 const { Pet } = require('../../models');
 
-const { isValidPetDetails, getCategoryById, getTagsByIdList, parsePetDetails } = require('./helpers');
+// import helper methods  
+const { 
+    isValidPetDetails, 
+    getCategoryById, 
+    getTagsByIdList, 
+    parsePetDetails 
+} = require('./helpers');
+
 exports.createPet = function (req, res) {
     try {
         if (isValidPetDetails(req.body)) {
             let { category, tags } = req.body;
-            
+            // Promise to check category and tags exists
             let checkCategory = getCategoryById(category)
             let checkTags = getTagsByIdList(tags)
+            // call all promises
             Promise.all([checkCategory, checkTags]).then((resp) => {
                 let categoryResp = resp[0];
                 let tagsResp = resp[1]
+                // If category or tag did not find then don't create pet
                 if (categoryResp && tagsResp?.tag && tagsResp.tag.length == tags.length) {
+                    // Parse details and create new pet
                     let parsedPetDetails = parsePetDetails(req.body);
                     createNewPet(parsedPetDetails).then((newPet) => {
                         res.status(200).send({
@@ -42,7 +52,11 @@ exports.createPet = function (req, res) {
         });
     }
 };
-
+/**
+ * 
+ * @param {*} petDetails Details of the pet object
+ * @returns Promise with new pet details
+ */
 function createNewPet(petDetails) {
     return new Promise((resolve, reject) => {
         Pet.create(petDetails).then((newPet) => {

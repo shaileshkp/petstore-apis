@@ -10,6 +10,7 @@ exports.createCategory = function (req, res) {
             return getCategory({name})
             .then(createIfNotExists)
             .then((categoryResp) => {
+                // category holds new or existing category and isNew holds category is newly created or not
                 let { category, isNew } = categoryResp;
                 let message = isNew ? 'New category is added.' : 'This category is already exists.';
                 res.status(200).send({ 
@@ -30,7 +31,11 @@ exports.createCategory = function (req, res) {
         });
     }
 };
-
+/**
+ * 
+ * @param {name} param0 name of the category
+ * @returns Promise with category details
+ */
 let getCategory = ({name}) => {
     return new Promise((resolve, reject) => {
         Category.findOne({ where: { name } }).then((category) => {
@@ -42,7 +47,12 @@ let getCategory = ({name}) => {
         }).catch(err => reject(err))
     })
 }
-
+/**
+ * 
+ * @param {id}      category    id of the category
+ * @param {name}    category    name of the category
+ * @returns Promise with category and boolean isNew which defines the new category
+ */
 let createIfNotExists = (category) => {
     return new Promise((resolve, reject) => {
         let { id, name } = category;

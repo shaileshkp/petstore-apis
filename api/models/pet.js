@@ -18,7 +18,8 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: false
         },
         photoUrls: {
-            type: DataTypes.ARRAY(DataTypes.INTEGER)
+            type: DataTypes.ARRAY(DataTypes.INTEGER),
+            allowNull: false
         },
         tags: {
             type: DataTypes.ARRAY(DataTypes.INTEGER),

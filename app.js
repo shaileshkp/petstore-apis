@@ -11,7 +11,7 @@ dotenv.config({ path: './configs/config.'+ useEnv +'.env' });
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-
+// redirect all api on api router
 app.use('/api', require('./api/routes'))
 
 // Handler for undefined api's

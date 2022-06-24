@@ -1,12 +1,15 @@
-const { Pet, Category, Sequelize, sequelize } = require('../../models');
+const { sequelize } = require('../../models');
 const { QueryTypes } = require('sequelize');
 const { checkValidStatusList } = require('./helpers');
 
 exports.findPetByStatus = function (req, res) {
     try {
+        // Find status from query
         let { status } = req.query;
         let isValidStatusList = true;
+        // If status exists then check
         if (status && status.length) {
+            // Check for array and single status 
             if (typeof status == 'object')
                 status = status.map((st) => { return st.trim()})
             else if (typeof status == 'string') {
@@ -16,8 +19,9 @@ exports.findPetByStatus = function (req, res) {
         } else {
             isValidStatusList = false;
         }
-
+        // If status is not valid then reject
         if (isValidStatusList) {
+            // Query on status 
             sequelize.query(
                 getPetsJoinQuery(),
                 {
@@ -39,7 +43,10 @@ exports.findPetByStatus = function (req, res) {
         res.status(500).send(error)
     }
 };
-
+/**
+ * Get Pet query with join in category and tags
+ * @returns SQL query for retrieve pet details
+ */
 let getPetsJoinQuery = () => {
     return `SELECT 
         p.id, 
@@ -51,5 +58,6 @@ let getPetsJoinQuery = () => {
         FROM pets p JOIN tags t ON t.id = ANY (p.tags) 
         left join categories as c on p.category = c.id 
         WHERE status IN (:status)
-        GROUP BY p.id, p.name, c.name, c.id`;
+        GROUP BY p.id, p.name, c.name, c.id
+        ORDER BY p.id DESC`;
 }
